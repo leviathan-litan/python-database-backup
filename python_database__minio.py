@@ -139,6 +139,34 @@ def minio_get_connection():
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MinIO 查找
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MinIO【检验 / MinIO 与 下载到本地后的大小进行比较】
+def minio_file_size_diff__minio_local(minio_connection, bucket_name, file_path_minio, file_path_local):
+    
+    # 本地文件
+    # file_path__local = f"{save_path}/{file_path_minio}"
+    file_path__local = f"{file_path_local}"
+    file_size__local = os.stat(file_path__local).st_size
+
+    # MinIO文件
+    file__minio = minio_connection.get_object(
+        bucket_name,
+        file_path_minio,
+    )
+    file_size__minio = int(
+        file__minio.headers.get('content-length')
+    )
+
+    print(f"############## 本地文件【{file_path__local}】大小：{file_size__local}")
+    print(f"############## MinIO文件【{file_path_minio}】大小：{file_size__minio}")
+
+    if file_size__local == file_size__minio:
+        # 大小相同
+        return True
+    else:
+        # 大小不同
+        return False
+
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MinIO 创建路径
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MinIO 上传文件
@@ -165,11 +193,38 @@ def minio_upload_file(
     )
 
     # 函数参数：显示
+    print()
     print(f"%%%%%%%%% MinIO 上传文件 %%%%%%%%%")
     print(f"本地文件路径：{file_path_local}")
     print(f"MinIO 中的文件路径：{file_path_minio}")
     print(f"MinIO 中的目标桶：{minio_bucket}")
 
+    # 执行上传
+    display_current_datetime(
+        message=f"MinIO / 上传文件 / 当前【{file_path_minio}】"
+    )
+    # 执行上传
+    minio_connection.fput_object(
+        bucket_name=minio_bucket,
+        object_name=file_path_minio,
+        file_path=file_path_local
+    )
+
+    upload_result_isOk = minio_file_size_diff__minio_local(
+        minio_connection=minio_connection,
+        bucket_name=minio_bucket,
+        file_path_minio=file_path_minio,
+        file_path_local=file_path_local,
+    )
+
+    if upload_result_isOk:
+        display_current_datetime(
+            message=f"MinIO / 上传文件 / 成功【{file_path_minio}】"
+        )
+    else:
+        display_current_datetime(
+            message=f"MinIO / 上传文件 / 失败【{file_path_minio}】"
+        )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MinIO 下载文件
 
