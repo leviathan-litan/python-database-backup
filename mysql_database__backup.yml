@@ -1,0 +1,32 @@
+# 备份路径的说明
+# 1. 默认情况下，会将 backup_list 中的数据库备份到 backup_meta 的 dir_backup_base 指定的路径中
+#    具体的目录规则如下：
+#    {{ backup_meta: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}_{{ host }}_{{ db_name }}_{{ 年月日_时分 }}.dbbackup
+#    文件的后缀【dbbackup】会根据具体的数据库的备份方法不同而不同
+#    例如：如果是通过 mysqldump 备份的 MySQL 后缀则为：.sql
+#
+# 2. 如果在 backup_list 中指定了 dir_backup_base 那么 会从该路径 为起始 创建进行备份
+#    具体的目录规则如下：
+#    {{ backup_list: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}_{{ host }}_{{ db_name }}_{{ 年月日_时分 }}.dbbackup
+#    文件的后缀【dbbackup】会根据具体的数据库的备份方法不同而不同
+#    例如：如果是通过 mysqldump 备份的 MySQL 后缀则为：.sql
+
+backup_meta:
+  dir_backup_base: "/data/database_backup"
+backup_list:
+  - vender: "mysql"
+    host: "192.168.5.104"
+    port: 3306
+    db_name: "dolphinscheduler"
+    user: "dolphinscheduler"
+    password: "xxx"
+    dir_backup_base: ""
+    comment: ""
+  - vender: "mysql"
+    host: "192.168.5.105"
+    port: 3306
+    db_name: "grafana"
+    user: "root"
+    password: "xxx"
+    dir_backup_base: ""
+    comment: ""
