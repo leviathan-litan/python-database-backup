@@ -18,3 +18,10 @@ Linux 本地 需要安装 mysql-client，有 mysqldump
 mysqldump  Ver 9.1.0-commercial for Linux on x86_64 (MySQL Enterprise Server - Commercial)
 [root@mysql01 ~]# 
 ```
+
+## 备份的数据文件
+
+解压：
+```
+gunzip xxx.sql.gz
+```

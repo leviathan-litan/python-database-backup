@@ -97,17 +97,57 @@ def display_current_datetime(message):
 # Database: MySQL
 # ==================================
 
+# 备份 MySQL 数据库
+def mysql_backup(vender, host, port, db_name, user, password, dir_backup_file):
+    
+    # -- 备份文件名称的后缀
+    backup_file_suffix = "sql"
+
+    # -- 备份文件的名称
+    file_backup = f"db_backup_file__{ vender }__{ host }__{ db_name }__{ current_date_YYYYMMDD_HHmmss }.{backup_file_suffix}"
+    # -- 备份日志文件的名称
+    file_backup_log = f"db_backup_file__{ vender }__{ host }__{ db_name }__{ current_date_YYYYMMDD_HHmmss }.log"
+
+    # -- 备份文件完整路径
+    full_path_backup_file = f"{dir_backup_file}/{file_backup}"
+    # -- 备份日志文件完整路径
+    full_path_backup_log_file = f"{dir_backup_file}/{file_backup_log}"
+
+    # 显示
+    print(f"------------")
+    print(f"备份文件的名称：{file_backup}")
+    print(f"备份文件的完整路径：{full_path_backup_file}")
+    print(f"------------")
+    
+    # 备份的命令 / 预览
+    command_backup = f"mysqldump -h {host} -u {user} -p{password} -P{port} --single-transaction --quick --databases {db_name} | gzip > {full_path_backup_file}.gz"
+    
+    print(f"备份语句【{command_backup}】")
+    print(f"------------")
+    
+    # 备份的命令 / 执行
+    exit_code = os.system(command_backup)
+    
+    if exit_code == 0:
+        display_current_datetime(
+            message="数据库备份【成功】"
+        )
+    else:
+        display_current_datetime(
+            message="数据库备份【失败】"
+        )
 
 # ==================================
 # 变量
 # ==================================
 
 # 配置文件
-config_file = "mysql_database__backup.yml"
+config_file = "python_database__backup.yml"
 config_file_obj = yaml_load_file(
     config_file=config_file
 )
 
+# 解析配置文件获得配置项
 backup_meta_dir_backup_base = yaml_get_value(
     config_file_obj=config_file_obj,
     variable_path="backup_meta.dir_backup_base"
@@ -188,38 +228,15 @@ for backup_list_item in backup_list:
 
     if vender == "mysql":
 
-        # -- 备份文件名称的后缀
-        backup_file_suffix = "sql"
-        # -- 备份文件的名称
-        file_backup = f"db_backup_file__{ vender }_{ host }_{ db_name }_{ current_date_YYYYMMDD_HHmmss }.{backup_file_suffix}"
-        file_backup_log = f"db_backup_file__{ vender }_{ host }_{ db_name }_{ current_date_YYYYMMDD_HHmmss }.log"
-
-        # -- 备份文件完整路径
-        full_path_backup_file = f"{dir_backup_file}/{file_backup}"
-
-        # 显示
-        print(f"------------")
-        print(f"备份文件的名称：{file_backup}")
-        print(f"备份文件的完整路径：{full_path_backup_file}")
-        print(f"------------")
-
-        # 备份的命令 / 预览
-        command_backup = f"mysqldump -h {host} -u {user} -p{password} -P{port} --single-transaction --quick --databases {db_name} | gzip > {full_path_backup_file}.gz"
-
-        print(f"备份语句【{command_backup}】")
-        print(f"------------")
-        
-        # 备份的命令 / 执行
-        exit_code = os.system(command_backup)
-        
-        if exit_code == 0:
-            display_current_datetime(
-                message="数据库备份【成功】"
-            )
-        else:
-            display_current_datetime(
-                message="数据库备份【失败】"
-            )
+        mysql_backup(
+            vender=vender,
+            host=host,
+            port=port,
+            db_name=db_name,
+            user=user,
+            password=password,
+            dir_backup_file=dir_backup_file
+        )
         
     # 结束阶段
     print()
