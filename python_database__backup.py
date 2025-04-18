@@ -27,11 +27,10 @@ import arrow
 import yaml
 
 # ))))))))))))))))))))))))))))
-# Progress Bar
+# MinIO
 # ))))))))))))))))))))))))))))
 
-# - pip install tqdm
-# from tqdm import tqdm
+from python_database__minio import *
 
 # ==================================
 # YAML
@@ -98,10 +97,14 @@ def display_current_datetime(message):
 # ==================================
 
 # 备份 MySQL 数据库
-def mysql_backup(vender, host, port, db_name, user, password, dir_backup_file):
+def mysql_backup(vender, host, port, db_name, user, password, dir_backup_file, dir_minio_upload_base):
+
+    # ##############################
+    # 备份数据库 - 本地 / mysqldump
+    # ##############################
     
     # -- 备份文件名称的后缀
-    backup_file_suffix = "sql"
+    backup_file_suffix = "sql.gz"
 
     # -- 备份文件的名称
     file_backup = f"db_backup_file__{ vender }__{ host }__{ db_name }__{ current_date_YYYYMMDD_HHmmss }.{backup_file_suffix}"
@@ -118,9 +121,9 @@ def mysql_backup(vender, host, port, db_name, user, password, dir_backup_file):
     print(f"备份文件的名称：{file_backup}")
     print(f"备份文件的完整路径：{full_path_backup_file}")
     print(f"------------")
-    
+
     # 备份的命令 / 预览
-    command_backup = f"mysqldump -h {host} -u {user} -p{password} -P{port} --single-transaction --quick --databases {db_name} | gzip > {full_path_backup_file}.gz"
+    command_backup = f"mysqldump -h {host} -u {user} -p{password} -P{port} --single-transaction --quick --databases {db_name} | gzip > {full_path_backup_file}"
     
     print(f"备份语句【{command_backup}】")
     print(f"------------")
@@ -136,6 +139,18 @@ def mysql_backup(vender, host, port, db_name, user, password, dir_backup_file):
         display_current_datetime(
             message="数据库备份【失败】"
         )
+
+    # ##############################
+    # 上传到 MinIO
+    # ##############################
+
+    print()
+    print(f"MinIO 上传目录：{dir_minio_upload_base}")
+
+    minio_upload_file(
+        file_path_local=full_path_backup_file,
+        file_path_minio=f"{dir_minio_upload_base}/{file_backup}",
+    )
 
 # ==================================
 # 变量
@@ -203,6 +218,7 @@ for backup_list_item in backup_list:
     user = backup_list_item['user']
     password = backup_list_item['password']
     dir_backup_base = backup_list_item['dir_backup_base']
+    dir_minio_upload_base = backup_list_item['dir_minio_upload_base']
 
     # 当前数据库的备份起始目录（dir_backup_base）
     # 如果没有指定，则使用全局默认的备份起始目录
@@ -235,7 +251,8 @@ for backup_list_item in backup_list:
             db_name=db_name,
             user=user,
             password=password,
-            dir_backup_file=dir_backup_file
+            dir_backup_file=dir_backup_file,
+            dir_minio_upload_base=dir_minio_upload_base,
         )
         
     # 结束阶段

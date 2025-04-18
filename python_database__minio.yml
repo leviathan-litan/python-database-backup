@@ -1,8 +1,8 @@
 meta:
-  name: "mysql_database__minio.yml"
+  name: "python_database__minio.yml"
 minio:
   client:
-    endpoint: ""
+    endpoint: "MinIO服务器地址"
     accesskey: ""
     secretkey: ""
-    bucket: ""
+    bucket: "my-backup-bucket"

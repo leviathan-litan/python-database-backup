@@ -1,15 +1,19 @@
 # 备份路径的说明
 # 1. 默认情况下，会将 backup_list 中的数据库备份到 backup_meta 的 dir_backup_base 指定的路径中
 #    具体的目录规则如下：
-#    {{ backup_meta: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}_{{ host }}_{{ db_name }}_{{ 年月日_时分 }}.dbbackup
+#    {{ backup_meta: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}__{{ host }}__{{ db_name }}__{{ 年月日_时分 }}.sql.gz
 #    文件的后缀【dbbackup】会根据具体的数据库的备份方法不同而不同
 #    例如：如果是通过 mysqldump 备份的 MySQL 后缀则为：.sql
 #
 # 2. 如果在 backup_list 中指定了 dir_backup_base 那么 会从该路径 为起始 创建进行备份
 #    具体的目录规则如下：
-#    {{ backup_list: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}_{{ host }}_{{ db_name }}_{{ 年月日_时分 }}.dbbackup
+#    {{ backup_list: dir_backup_base}}/{{ vender }}/{{ host }}/{{ 年月日 }}/db_backup_file__{{ vender }}__{{ host }}__{{ db_name }}__{{ 年月日_时分 }}.sql.gz
 #    文件的后缀【dbbackup】会根据具体的数据库的备份方法不同而不同
 #    例如：如果是通过 mysqldump 备份的 MySQL 后缀则为：.sql
+#
+# 3. 如果在 backup_list 中指定了 dir_minio_upload_base 那么 会将备份的文件上传到 MinIO 中的如下目录：
+#    \\桶\{{ dir_minio_upload_base }}\db_backup_file__{{ vender }}__{{ host }}__{{ db_name }}__{{ 年月日_时分 }}.sql.gz
+#    MinIO 的【桶】 及其 相关的定义在配置文件 python_database__minio.yml 中 配置
 
 backup_meta:
   dir_backup_base: "/data/database_backup"
@@ -21,7 +25,7 @@ backup_list:
     user: "dolphinscheduler"
     password: "xxx"
     dir_backup_base: ""
-    comment: ""
+    dir_minio_upload_base: "mysql_backup/"
   - vender: "mysql"
     host: "192.168.5.105"
     port: 3306
@@ -29,4 +33,4 @@ backup_list:
     user: "root"
     password: "xxx"
     dir_backup_base: ""
-    comment: ""
+    dir_minio_upload_base: ""
