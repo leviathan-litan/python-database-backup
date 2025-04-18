@@ -8,6 +8,7 @@ Python 3.6.8+
 ```
 pip install pyyaml
 pip install arrow
+pip install minio
 ```
 
 ## 操作系统
@@ -25,3 +26,10 @@ mysqldump  Ver 9.1.0-commercial for Linux on x86_64 (MySQL Enterprise Server - C
 ```
 gunzip xxx.sql.gz
 ```
+
+## 脚本使用
+
+1. 安装 Python 3
+2. 安装依赖包
+3. 配置 YAML文件：python_database__backup.yml / python_database__minio.yml
+4. 执行脚本：python3 python_database_backup.py
